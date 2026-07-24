@@ -7,7 +7,7 @@ import { useHistorial } from "../hooks/useHistorial";
 import ItemCard from "./ItemCard";
 import HistorialView from "./HistorialView";
 
-export default function ApartamentoView({ apartamento }) {
+export default function ApartamentoView({ apartamento, perfilActivo }) {
   const { items, loading, error, saving, progreso, actualizarItem, subirFoto } =
     useMantenimiento(apartamento);
   const { guardarEntrada } = useHistorial(apartamento);
@@ -46,7 +46,7 @@ export default function ApartamentoView({ apartamento }) {
             )}
           </div>
 
-          {/* Pestañas Verificación / Historial */}
+          {/* Pestañas */}
           <div className="flex gap-1 bg-slate-100 rounded-xl p-1 mb-3 w-fit">
             {[
               { key: "verificacion", label: "📋 Verificación" },
@@ -60,7 +60,6 @@ export default function ApartamentoView({ apartamento }) {
             ))}
           </div>
 
-          {/* Solo mostrar progreso y filtros en verificación */}
           {pestana === "verificacion" && (
             <>
               <div className="mb-3">
@@ -124,7 +123,10 @@ export default function ApartamentoView({ apartamento }) {
                 ) : (
                   <div className="space-y-3">
                     {itemsFiltrados.map((item) => (
-                      <ItemCard key={item.item_id} item={item}
+                      <ItemCard
+                        key={item.item_id}
+                        item={item}
+                        perfilActivo={perfilActivo}
                         onUpdate={actualizarItem}
                         onFoto={subirFoto}
                         onGuardarHistorial={guardarEntrada}
