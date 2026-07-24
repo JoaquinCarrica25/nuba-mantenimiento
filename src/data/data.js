@@ -10,6 +10,8 @@ export const APARTAMENTOS = [
   "ZURBANO", "ROBLEDO", "MOSTENSES", "ANTONIO LOPES"
 ];
 
+export const PERFILES = ["Vanessa", "Nanda", "Joaquin"];
+
 export const RESPONSABLES = ["Joaquín", "Nanda", "Oscar", "Vanessa", "Piney"];
 
 export const FRECUENCIAS = ["Semanalmente", "Quincenalmente", "Mensualmente"];
@@ -48,22 +50,34 @@ export const ITEMS_BASE = [
   { id: 31, nombre: "Desagües lavabo y ducha", observacion: "Hacer correr el agua" },
 ];
 
+// Ítems exclusivos de ROBLEDO (se añaden a los base)
+export const ITEMS_ROBLEDO = [
+  { id: 32, nombre: "Barbacoa — restos de comida", observacion: "Comprobar que la barbacoa está sin restos de comida" },
+  { id: 33, nombre: "Barbacoa — gas",              observacion: "Comprobar que la barbacoa tenga GAS" },
+  { id: 34, nombre: "Sombrillas",                  observacion: "Comprobar que las sombrillas se abren" },
+  { id: 35, nombre: "Hamacas",                     observacion: "Comprobar que las hamacas no están rotas o manchadas" },
+];
+
 /**
- * Genera el estado inicial de items para un apartamento
- * (usado en la primera carga si no hay datos en Supabase)
+ * Devuelve los items base para un apartamento.
+ * Si es ROBLEDO, añade los ítems exclusivos al final.
  */
-export function getItemsIniciales() {
-  return ITEMS_BASE.map((item) => ({
+export function getItemsIniciales(apartamento) {
+  const base = apartamento === "ROBLEDO"
+    ? [...ITEMS_BASE, ...ITEMS_ROBLEDO]
+    : ITEMS_BASE;
+
+  return base.map((item) => ({
     item_id:            item.id,
     nombre:             item.nombre,
     observacion:        item.observacion,
     frecuencia:         "Semanalmente",
-    estado:             false,           // false = Pendiente, true = Comprobado
+    estado:             false,
     fecha_verificacion: null,
     responsable:        "",
     notas:              "",
     patron_accion:      "",
     foto_url:           null,
-    funciona:           null,   // null = sin marcar, true = Sí, false = No
+    funciona:           null,
   }));
 }
