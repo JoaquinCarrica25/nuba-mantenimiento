@@ -1,15 +1,22 @@
 // ============================================================
 // NUBA MANTENIMIENTO — ItemCard
 // ============================================================
-import { useRef, useState } from "react";
-import { FRECUENCIAS, RESPONSABLES } from "../data/data";
+import { useRef, useState, useEffect } from "react";
+import { FRECUENCIAS } from "../data/data";
 
-export default function ItemCard({ item, onUpdate, onFoto, onGuardarHistorial }) {
+export default function ItemCard({ item, perfilActivo, onUpdate, onFoto, onGuardarHistorial }) {
   const fileRef   = useRef(null);
   const [lightbox, setLightbox]   = useState(false);
   const [uploading, setUploading] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [guardado, setGuardado]   = useState(false);
+
+  // Cuando se selecciona un perfil, se asigna automáticamente como responsable
+  useEffect(() => {
+    if (perfilActivo && !item.responsable) {
+      onUpdate(item.item_id, "responsable", perfilActivo);
+    }
+  }, [perfilActivo]);
 
   const handleFoto = async (e) => {
     const file = e.target.files?.[0];
@@ -20,8 +27,10 @@ export default function ItemCard({ item, onUpdate, onFoto, onGuardarHistorial })
   };
 
   const handleGuardar = async () => {
+    // Asegurarse de que el responsable es el perfil activo antes de guardar
+    const itemConPerfil = { ...item, responsable: perfilActivo || item.responsable };
     setGuardando(true);
-    await onGuardarHistorial(item);
+    await onGuardarHistorial(itemConPerfil);
     setGuardando(false);
     setGuardado(true);
     setTimeout(() => setGuardado(false), 2500);
@@ -56,6 +65,12 @@ export default function ItemCard({ item, onUpdate, onFoto, onGuardarHistorial })
             ${item.estado ? "bg-nuba-cyan/15 text-nuba-cyan" : "bg-red-50 text-red-400"}`}>
             {item.estado ? "✓ Comprobado" : "● Pendiente"}
           </span>
+          {/* Responsable automático visible */}
+          {(perfilActivo || item.responsable) && (
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+              👤 {perfilActivo || item.responsable}
+            </span>
+          )}
           <div className="flex items-center gap-1.5 ml-1">
             <span className="text-xs text-slate-400 font-medium mr-1">¿Funciona?</span>
             <button onClick={() => onUpdate(item.item_id, "funciona", true)}
@@ -77,13 +92,6 @@ export default function ItemCard({ item, onUpdate, onFoto, onGuardarHistorial })
             <label className="field-label">Frecuencia</label>
             <select value={item.frecuencia} onChange={(e) => onUpdate(item.item_id, "frecuencia", e.target.value)} className="field-input">
               {FRECUENCIAS.map((f) => <option key={f} value={f}>{f}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="field-label">Quién lo comprueba</label>
-            <select value={item.responsable} onChange={(e) => onUpdate(item.item_id, "responsable", e.target.value)} className="field-input">
-              <option value="">— Seleccionar —</option>
-              {RESPONSABLES.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
           <div>
@@ -115,7 +123,6 @@ export default function ItemCard({ item, onUpdate, onFoto, onGuardarHistorial })
               </button>
             )}
 
-            {/* Botón guardar en historial */}
             <button onClick={handleGuardar} disabled={guardando || guardado}
               className={`ml-auto flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition
                 ${guardado ? "bg-green-500 text-white" : guardando ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-nuba-blue text-white hover:bg-nuba-blue/80"}`}>
