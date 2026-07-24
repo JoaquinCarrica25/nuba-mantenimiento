@@ -25,7 +25,7 @@ export function useMantenimiento(apartamento) {
 
       if (sbError) throw sbError;
 
-      const base = getItemsIniciales();
+      const base = getItemsIniciales(apartamento);
 
       if (!data || data.length === 0) {
         // Primera vez: usar estado inicial (no guardado aún)
